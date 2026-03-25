@@ -845,10 +845,16 @@
       }
 
       const reservedIndexes = new Set([tierIndex, categoryIndex, accommodationIndex, typeIndex, notesIndex, howToIndex].filter((index) => index >= 0));
-      const people = headers
-        .map((header, index) => ({ header, index }))
-        .filter(({ header, index }) => !reservedIndexes.has(index) && header.trim())
-        .map(({ header }) => header.trim());
+      const personColumns = headers
+        .map((header, index) => ({ header: header.trim(), index }))
+        .filter(({ index, header }) => {
+          if (reservedIndexes.has(index) || !header) {
+            return false;
+          }
+
+          return records.slice(1).some((record) => isMarked(record[index]));
+        });
+      const people = personColumns.map(({ header }) => header);
 
       const rows = records.slice(1).map((record, rowIndex) => {
         const tier = tierIndex >= 0 ? String(record[tierIndex] || "").trim() : "";
@@ -859,10 +865,9 @@
         const howToImplement = howToIndex >= 0 ? String(record[howToIndex] || "").trim() : "";
 
         const assignments = new Set();
-        people.forEach((person) => {
-          const personIndex = headers.indexOf(person);
-          if (isMarked(record[personIndex])) {
-            assignments.add(person);
+        personColumns.forEach(({ header, index }) => {
+          if (isMarked(record[index])) {
+            assignments.add(header);
           }
         });
 
