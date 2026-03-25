@@ -876,14 +876,14 @@
           howToImplement,
           assignments
         };
-      }).filter((row) => row.accommodation);
+      }).filter((row) => row.accommodation && row.assignments.size > 0);
 
       rows.sort((left, right) => {
-        const tierComparison = compareSortKeys(rowSortKey(left.tier), rowSortKey(right.tier));
-        if (tierComparison !== 0) return tierComparison;
-
         const categoryComparison = left.category.localeCompare(right.category, undefined, { sensitivity: "base" });
         if (categoryComparison !== 0) return categoryComparison;
+
+        const tierComparison = compareSortKeys(rowSortKey(left.tier), rowSortKey(right.tier));
+        if (tierComparison !== 0) return tierComparison;
 
         return left.accommodation.localeCompare(right.accommodation, undefined, { sensitivity: "base" });
       });
@@ -918,6 +918,7 @@
     function getFilteredRows() {
       const searchValue = state.search.trim().toLowerCase();
       return state.rows.filter((row) => {
+        const hasAssignments = row.assignments.size > 0;
         const matchesPeople = state.selectedPeople.size === 0
           || Array.from(state.selectedPeople).some((person) => row.assignments.has(person));
         const matchesCategory = state.selectedCategories.size === 0 || state.selectedCategories.has(row.category);
@@ -930,7 +931,7 @@
           row.howToImplement
         ].join(" ").toLowerCase();
         const matchesSearch = !searchValue || haystack.includes(searchValue);
-        return matchesPeople && matchesCategory && matchesSearch;
+        return hasAssignments && matchesPeople && matchesCategory && matchesSearch;
       });
     }
 
@@ -949,11 +950,10 @@
       const groups = [];
       rows.forEach((row) => {
         const lastGroup = groups[groups.length - 1];
-        const groupKey = `${row.tier}__${row.category}`;
+        const groupKey = row.category;
         if (!lastGroup || lastGroup.key !== groupKey) {
           groups.push({
             key: groupKey,
-            tier: row.tier,
             category: row.category,
             rows: [row]
           });
