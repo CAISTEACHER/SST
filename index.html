@@ -902,7 +902,7 @@
         throw new Error("Google Visualization response did not include a usable table.");
       }
 
-      const headers = table.cols.map((column) => String(column.label || column.id || "").trim());
+      const headers = table.cols.map((column) => String(column.label || "").trim());
       const records = table.rows.map((row) => {
         const cells = Array.isArray(row.c) ? row.c : [];
         return headers.map((_, index) => {
