@@ -1,0 +1,4 @@
+window.APP_CONFIG = {
+  OPENAI_API_KEY: "YOUR_OPENAI_API_KEY_HERE",
+  OPENAI_MODEL: "gpt-5.4"
+};
